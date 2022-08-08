@@ -29,7 +29,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData dreamData = new(dreamBlock);
+                var dreamData = DynamicData.For(dreamBlock);
 
                 if (!dreamData.Get<bool>("playerHasDreamDash")) {
                     bullet.RemoveSelf();
@@ -52,7 +52,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData oshiroData = new(oshiro);
+                var oshiroData = DynamicData.For(oshiro);
                 var stateMachine = oshiroData.Get<StateMachine>("state");
 
                 if (stateMachine.State == 5) {
@@ -100,7 +100,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData pufferData = new(puffer);
+                var pufferData = DynamicData.For(puffer);
 
                 if (pufferData.Get("state").ToString() != "Idle") {
                     return;
@@ -116,7 +116,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData seedData = new(seed);
+                var seedData = DynamicData.For(seed);
                 seedData.Invoke("OnPlayer", player);
             }
         }, {
@@ -125,7 +125,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData keyData = new(key);
+                var keyData = DynamicData.For(key);
                 keyData.Invoke("OnPlayer", player);
             }
         }, {
@@ -134,7 +134,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData refillData = new(refill);
+                var refillData = DynamicData.For(refill);
                 refillData.Invoke("OnPlayer", player);
             }
         }, {
@@ -191,7 +191,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData dashData = new(dashBlock);
+                var dashData = DynamicData.For(dashBlock);
 
                 if (!dashData.Get<bool>("canDash")) {
                     bullet.RemoveSelf();
@@ -202,7 +202,7 @@ public static class Util {
                 if (!TempDict.ContainsKey(entity)) {
                     TempDict.Add(entity, count);
                 } else {
-                    count = (int) TempDict[entity];
+                    count = (int)TempDict[entity];
                 }
 
                 if (count > 3) {
@@ -238,7 +238,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData snowballData = new(snowball);
+                var snowballData = DynamicData.For(snowball);
                 snowballData.Invoke("Destroy");
                 Audio.Play("event:/game/general/thing_booped", snowball.Position);
                 ballet.RemoveSelf();
@@ -249,7 +249,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData torchData = new(torch);
+                var torchData = DynamicData.For(torch);
                 torchData.Invoke("OnPlayer", player);
             }
         }, {
@@ -258,7 +258,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData switchData = new(dashSwitch);
+                var switchData = DynamicData.For(dashSwitch);
 
                 void HandleDashSwitch(Vector2 direction) {
                     Audio.Play("event:/game/05_mirror_temple/button_activate", entity.Position);
@@ -288,9 +288,9 @@ public static class Util {
 
                         while (enumerator.MoveNext()) {
                             var enumeratorCurrent = enumerator.Current;
-                            var templeGate = (TempleGate) enumeratorCurrent;
+                            var templeGate = (TempleGate)enumeratorCurrent;
 
-                            if (templeGate is {Type: TempleGate.Types.NearestSwitch} &&
+                            if (templeGate is { Type: TempleGate.Types.NearestSwitch } &&
                                 templeGate.LevelID == switchData.Get<EntityID>("id").Level) {
                                 templeGate.SwitchOpen();
                             }
@@ -344,7 +344,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData seekerData = new(seeker);
+                var seekerData = DynamicData.For(seeker);
                 seekerData.Invoke("GotBouncedOn", bullet);
                 bullet.RemoveSelf();
             }
@@ -359,7 +359,7 @@ public static class Util {
                 if (!TempDict.ContainsKey(entity)) {
                     TempDict.Add(entity, count);
                 } else {
-                    count = (int) TempDict[entity];
+                    count = (int)TempDict[entity];
                 }
 
                 if (count > 3) {
@@ -386,7 +386,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData bumperData = new(bumper);
+                var bumperData = DynamicData.For(bumper);
 
                 if (bumperData.Get<bool>("fireMode")) {
                     var vector = (bullet.Center - entity.Center).SafeNormalize();
@@ -422,7 +422,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData ballData = new(fireBall);
+                var ballData = DynamicData.For(fireBall);
 
                 if (!ballData.Get<bool>("iceMode")) {
                     var direction = (bullet.Center - entity.Center).SafeNormalize();
@@ -445,7 +445,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData toggleData = new(toggle);
+                var toggleData = DynamicData.For(toggle);
 
                 toggleData.Invoke("OnPlayer", player);
                 bullet.RemoveSelf();
@@ -456,7 +456,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData boxData = new(box);
+                var boxData = DynamicData.For(box);
 
                 boxData.Get<SoundSource>("firstHitSfx")?.Stop();
                 Audio.Play("event:/new_content/game/10_farewell/fusebox_hit_2", entity.Position);
@@ -474,7 +474,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData fakeWallData = new(fakeWall);
+                var fakeWallData = DynamicData.For(fakeWall);
 
                 fakeWallData.Set("fade", true);
 
@@ -490,7 +490,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData eyeballData = new(eyeball);
+                var eyeballData = DynamicData.For(eyeball);
 
                 if (eyeballData.Get<bool>("triggered")) {
                     return;
@@ -502,7 +502,7 @@ public static class Util {
                     count = 1;
                     TempDict.Add(entity, 1);
                 } else {
-                    count = (int) TempDict[entity];
+                    count = (int)TempDict[entity];
                 }
 
                 if (count < 4) {
@@ -563,8 +563,8 @@ public static class Util {
                         var fade = typeof(TempleBigEyeball).GetNestedType("Fader", BindingFlags.NonPublic)
                             .GetConstructor(Type.EmptyTypes)
                             ?.Invoke(new object[0]);
-                        DynamicData fadeData = new(fade);
-                        new DynamicData(level).Invoke("Add", fade);
+                        var fadeData = DynamicData.For(fade);
+                        DynamicData.For(level).Invoke("Add", fade);
                         var time = fadeData.Get<float>("Fade");
 
                         while ((time += Engine.DeltaTime) < 1f) {
@@ -584,7 +584,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData boosterData = new(booster);
+                var boosterData = DynamicData.For(booster);
 
                 if (boosterData.Get<float>("respawnTimer") > 0f ||
                     boosterData.Get<float>("cannotUseTimer") > 0f ||
@@ -607,17 +607,17 @@ public static class Util {
                 bullet.RemoveSelf();
             }
         }, {
-            typeof(ZipMover), (_, _, _) => {  }  // This Entity was hooked somewhere else
+            typeof(ZipMover), (_, _, _) => { } // This Entity was hooked somewhere else
         }, {
             typeof(HeartGem), (entity, player, _) => {
                 if (entity is not HeartGem heart) {
                     return;
                 }
 
-                DynamicData heartData = new(heart);
+                var heartData = DynamicData.For(heart);
 
                 if (!heartData.Get<bool>("collected") && !heart.SceneAs<Level>().Frozen) {
-                   heartData.Invoke("Collect", player); 
+                    heartData.Invoke("Collect", player);
                 }
             }
         }, {
@@ -625,8 +625,8 @@ public static class Util {
                 if (entity is not SummitGem gem) {
                     return;
                 }
-                
-                DynamicData gemData = new(gem);
+
+                var gemData = DynamicData.For(gem);
                 var level = entity.SceneAs<Level>();
                 entity.Add(new Coroutine(gemData.Invoke<IEnumerator>("SmashRoutine", player, level)));
             }
@@ -636,7 +636,7 @@ public static class Util {
                     return;
                 }
 
-                DynamicData cassetteData = new(cassette);
+                var cassetteData = DynamicData.For(cassette);
                 cassetteData.Invoke("OnPlayer", player);
                 bullet.RemoveSelf();
             }

@@ -1,5 +1,5 @@
-namespace Celeste.Mod.Gunleste {
-    public class GunlesteModuleSession : EverestModuleSession {
+namespace Celeste.Mod.Gunleste; 
 
-    }
+public class GunlesteModuleSession : EverestModuleSession {
+
 }
