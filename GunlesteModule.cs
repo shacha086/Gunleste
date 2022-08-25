@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Utils;
@@ -26,6 +30,7 @@ namespace Celeste.Mod.Gunleste {
             On.Celeste.FlutterBird.IdleRoutine += HookFlutterBirdIdleRoutine;
             On.Celeste.BirdNPC.WaitRoutine += HookBirdNpcWaitRoutine;
             On.Celeste.CrumblePlatform.Sequence += HookCrumblePlatformSequence;
+            On.Celeste.BadelineBoost.Update += HookBadelineBoostUpdate;
         }
 
         public override void Unload() {
@@ -35,6 +40,7 @@ namespace Celeste.Mod.Gunleste {
             On.Celeste.FlutterBird.IdleRoutine -= HookFlutterBirdIdleRoutine;
             On.Celeste.BirdNPC.WaitRoutine -= HookBirdNpcWaitRoutine;
             On.Celeste.CrumblePlatform.Sequence -= HookCrumblePlatformSequence;
+            On.Celeste.BadelineBoost.Update -= HookBadelineBoostUpdate;
         }
 
         private static void HookPlayerUpdate(On.Celeste.Player.orig_Update orig, Player self) {
@@ -290,7 +296,34 @@ namespace Celeste.Mod.Gunleste {
                             0.05f * index3));
                 }
             }
+
             goto label_1;
+        }
+        
+        private void HookBadelineBoostUpdate(On.Celeste.BadelineBoost.orig_Update orig, BadelineBoost self) {
+            if (self.Sprite().Visible && self.Scene.OnInterval(0.05f))
+                self.SceneAs<Level>().ParticlesBG.Emit(BadelineBoost.P_Ambience, 1, self.Center, Vector2.One * 3f);
+            if (self.Holding() != null)
+                self.Holding().Speed = Vector2.Zero;
+            if (!self.Travelling())
+            {
+                var player = self.Scene.Tracker.GetEntity<Player>();
+                if (player != null)
+                {
+                    var bullet = self.Scene.Tracker.GetEntity<Bullet>();
+                    var bulletNum = -1f;
+                    if (bullet != null) {
+                        bulletNum = Calc.ClampedMap((bullet.Center - self.Position).Length(), 16f, 64f, 12f, 0.0f);
+                    }
+                    var playerNum = Calc.ClampedMap((player.Center - self.Position).Length(), 16f, 64f, 12f, 0.0f);
+                    var num = Calc.Max(bulletNum, playerNum);
+                    self.Sprite().Position = Calc.Approach(self.Sprite().Position, (player.Center - self.Position).SafeNormalize() * num, 32f * Engine.DeltaTime);
+                    if (self.CanSkip() && player.Position.X - (double) self.X >= 100.0 && self.NodeIndex() + 1 < self.Nodes().Length)
+                        self.Skip();
+                }
+            }
+            self.Light().Visible = self.Bloom().Visible = self.Sprite().Visible || self.Stretch().Visible;
+            DynamicData.For(self.Components).Invoke("Update");
         }
     }
 }

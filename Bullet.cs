@@ -7,7 +7,6 @@ namespace Celeste.Mod.Gunleste {
 
     [Tracked]
     public class Bullet : Entity {
-        private readonly Player _player;
         public Facings Facing { get; set; }
 
         public double Speed { get; set; } = 3;
@@ -16,9 +15,11 @@ namespace Celeste.Mod.Gunleste {
             get => Facing == Facings.Left ? -Vector2.UnitX : Vector2.UnitX;
         }
 
+        public Player Owner { get; }
+
         public Bullet(Player owner) {
             Sprite sprite;
-            _player = owner;
+            Owner = owner;
             Vector2 position;
 
             if (owner.StateMachine.State == 1 && Math.Abs((float)Input.MoveX + (float)owner.Facing) < 1e-4) {
@@ -41,7 +42,7 @@ namespace Celeste.Mod.Gunleste {
         public override void Update() {
             Speed = 3;
 
-            if (_player.Scene == null) {
+            if (Owner.Scene == null) {
                 return;
             }
 
@@ -50,7 +51,7 @@ namespace Celeste.Mod.Gunleste {
                 return;
             }
 
-            var collidedSolid = _player.Scene.CollideFirst<Solid>(Hitbox);
+            var collidedSolid = Owner.Scene.CollideFirst<Solid>(Hitbox);
 
             if (collidedSolid != null) {
                 if (!Util.DamageableSolids.ContainsKey(collidedSolid.GetType())) {
@@ -58,7 +59,7 @@ namespace Celeste.Mod.Gunleste {
                     return;
                 }
 
-                Util.DamageableSolids[collidedSolid.GetType()](collidedSolid, _player, this);
+                Util.DamageableSolids[collidedSolid.GetType()](collidedSolid, Owner, this);
             }
 
             foreach (var collidedBarrier in Scene.Tracker.GetEntities<SeekerBarrier>()) {
@@ -80,7 +81,7 @@ namespace Celeste.Mod.Gunleste {
                 bigEyeball.Collidable = true;
 
                 if (bigEyeball.CollideRect(Hitbox)) {
-                    Util.DamageableEntities[typeof(TempleBigEyeball)](bigEyeball, _player, this);
+                    Util.DamageableEntities[typeof(TempleBigEyeball)](bigEyeball, Owner, this);
                 }
 
                 bigEyeball.Collidable = collidable;
@@ -91,12 +92,38 @@ namespace Celeste.Mod.Gunleste {
                 fakeWall.Collidable = true;
 
                 if (fakeWall.CollideRect(Hitbox)) {
-                    Util.DamageableEntities[typeof(FakeWall)](fakeWall, _player, this);
+                    Util.DamageableEntities[typeof(FakeWall)](fakeWall, Owner, this);
                 }
 
                 fakeWall.Collidable = collidable;
             }
 
+            base.Update();
+
+            var collided = Owner.Scene.CollideBy(
+                Hitbox, it =>
+                    it is IDamageable ||
+                    Util.DamageableEntities.ContainsKey(it)
+            ).FirstOrDefault(it => it != null);
+
+            switch (collided) {
+                case null:
+                    Move();
+                    return;
+
+                case IDamageable damageable:
+                    damageable.OnDamage(Owner);
+                    break;
+            }
+
+            if (Util.DamageableEntities.ContainsKey(collided.GetType())) {
+                Util.DamageableEntities[collided.GetType()](collided, Owner, this);
+            }
+            
+            Move();
+        }
+
+        private void Move() {
             switch (Facing) {
                 case Facings.Left:
                     Position.X -= (int)Speed;
@@ -107,31 +134,10 @@ namespace Celeste.Mod.Gunleste {
                     break;
 
                 default:
-                    throw new NotImplementedException($"{Facing} is not supported.");
-            }
-
-            base.Update();
-
-            var collided = _player.Scene.CollideBy(
-                Hitbox, it =>
-                    it is IDamageable ||
-                    Util.DamageableEntities.ContainsKey(it)
-            ).FirstOrDefault(it => it != null);
-
-            switch (collided) {
-                case null:
-                    return;
-
-                case IDamageable damageable:
-                    damageable.OnDamage(_player);
-                    return;
-            }
-
-            if (Util.DamageableEntities.ContainsKey(collided.GetType())) {
-                Util.DamageableEntities[collided.GetType()](collided, _player, this);
+                    throw new NotSupportedException($"{Facing} is not supported.");
             }
         }
-
+        
         public Rectangle Hitbox => new((int)Position.X - 2, (int)Position.Y - 2, 4, 4);
     }
 }

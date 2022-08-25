@@ -5,17 +5,17 @@ namespace Celeste.Mod.Gunleste {
 
     [Tracked]
     public class BulletCollider : Component {
-        private readonly Action<IDamageable, Bullet> _onCollide;
+        private readonly Action<Entity, Bullet> _onCollide;
         private readonly Collider _collider;
-        private readonly IDamageable _damageable;
+        private readonly Entity _entity;
 
         public BulletCollider(
-            Action<IDamageable, Bullet> onCollide,
-            IDamageable damageable,
+            Action<Entity, Bullet> onCollide,
+            Entity entity,
             Collider collider = null
         ) : base(false, false) {
             _onCollide = onCollide;
-            _damageable = damageable;
+            _entity = entity;
             _collider = collider;
         }
 
@@ -25,7 +25,7 @@ namespace Celeste.Mod.Gunleste {
                     return false;
                 }
 
-                _onCollide(_damageable, bullet);
+                _onCollide(_entity, bullet);
                 return true;
             }
 
@@ -38,7 +38,7 @@ namespace Celeste.Mod.Gunleste {
                 return false;
             }
 
-            _onCollide(_damageable, bullet);
+            _onCollide(_entity, bullet);
             return true;
         }
     }

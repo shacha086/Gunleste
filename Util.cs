@@ -182,7 +182,7 @@ namespace Celeste.Mod.Gunleste {
                         return;
                     }
 
-                    bullet.Speed = 1.5;
+                    bullet.Speed = 1.75;
                 }
             }, {
                 typeof(DashBlock), (entity, _, bullet) => {
@@ -669,7 +669,7 @@ namespace Celeste.Mod.Gunleste {
                 }
             }, {
                 typeof(SwapBlock), (entity, _, bullet) => {
-                    if (entity is not SwapBlock block) {
+                    if (entity is not SwapBlock) {
                         return;
                     }
 
@@ -690,22 +690,27 @@ namespace Celeste.Mod.Gunleste {
                     bullet.RemoveSelf();
                 }
             }, {
-                typeof(BadelineBoost), (entity, player, bullet) => {
-                    if (entity is not BadelineBoost boost) {
-                        return;
-                    }
-                    //TODO
-                    
-                }
-            }, {
                 typeof(BounceBlock), (entity, _, bullet) => {
                     if (entity is not BounceBlock block) {
                         return;
                     }
-            
+
                     var blockData = DynamicData.For(block);
                     blockData.Invoke("Break");
-                    block.RemoveSelf();
+                    bullet.RemoveSelf();
+                }
+            }, {
+                typeof(BadelineBoost), (entity, _, bullet) => {
+                    if (entity is not BadelineBoost boost) {
+                        return;
+                    }
+
+                    var finalBoost = boost.NodeIndex() + 1 >= boost.Nodes().Length;
+                    if (!finalBoost) {
+                        boost.Skip();
+                    }
+
+                    bullet.RemoveSelf();
                 }
             }
         };
@@ -715,7 +720,7 @@ namespace Celeste.Mod.Gunleste {
 
             return entities.Where(t => t.Collidable && t.CollideRect(rectangle));
         }
-
+        
         public static Vector2 ToVector2(this Facings facing) {
             return facing switch {
                 Facings.Left => -Vector2.UnitX,
